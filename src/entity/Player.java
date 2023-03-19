@@ -17,7 +17,6 @@ public class Player extends Entity {
     // PLAYER IS ALWAYS IN THE MIDDLE OF THE SCREEN
     public final int screenX;
     public final int screenY;
-    public int hasKey;
 
     public Player(GamePanel gp, KeyHandler keyH) {
         this.gp = gp;
@@ -119,44 +118,7 @@ public class Player extends Entity {
     }
 
     public void pickUpObject(int index) {
-
         if(index != 9999) {
-
-            String objName = gp.obj[index].name;
-            switch(objName){
-                case "Key":
-                    hasKey++;
-                    gp.playSE(1);
-                    gp.obj[index] = null;
-                    gp.ui.showMessage("You picked up a key!");
-                    break;
-                case "Door":
-                    if(hasKey > 0) {
-                        gp.playSE(3);
-                        hasKey--;
-                        gp.obj[index] = null;
-                        gp.ui.showMessage("You unlocked the door!");
-                    } else {
-                        gp.ui.showMessage("The door seems to be locked..");
-                    }
-                    break;
-                case "Boots":
-                    speed += 2;
-                    gp.playSE(2);
-                    gp.obj[index] = null;
-                    gp.ui.showMessage("Speed boost!");
-                    break;
-                case "Chest":
-                    gp.ui.gameFinished = true;
-                    gp.stopMusic();
-                    gp.playSE(4);
-                    try {
-                        gp.obj[index].image = ImageIO.read(getClass().getResourceAsStream("/objects/chest_opened.png"));
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                    break;
-            }
 
         }
     }
