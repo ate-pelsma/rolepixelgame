@@ -2,16 +2,12 @@ package entity;
 
 import main.GamePanel;
 import main.KeyHandler;
-import main.UtilityTool;
 
-import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
-import java.io.IOException;
 
 public class Player extends Entity {
 
-    GamePanel gp;
     KeyHandler keyH;
 
     // PLAYER IS ALWAYS IN THE MIDDLE OF THE SCREEN
@@ -19,7 +15,8 @@ public class Player extends Entity {
     public final int screenY;
 
     public Player(GamePanel gp, KeyHandler keyH) {
-        this.gp = gp;
+
+        super(gp);
         this.keyH = keyH;
 
         // PIXELS START AT UPPER LEFT CORNER SO WE NEED TO ADJUST TO CENTER PLAYER
@@ -44,35 +41,20 @@ public class Player extends Entity {
 
     public void getPlayerImage() {
 
-        up1 = setup("boy_up_1");
-        up2 = setup("boy_up_2");
-        down1 = setup("boy_down_1");
-        down2 = setup("boy_down_2");
-        left1 = setup("boy_left_1");
-        left2 = setup("boy_left_2");
-        right1 = setup("boy_right_1");
-        right2 = setup("boy_right_2");
+        up1 = setup("/player/boy_up_1");
+        up2 = setup("/player/boy_up_2");
+        down1 = setup("/player/boy_down_1");
+        down2 = setup("/player/boy_down_2");
+        left1 = setup("/player/boy_left_1");
+        left2 = setup("/player/boy_left_2");
+        right1 = setup("/player/boy_right_1");
+        right2 = setup("/player/boy_right_2");
 
-    }
-
-    // IMPROVED RENDERING FUNCTION THAT SCALES OUTSIDE OF THE DRAW LOOP
-    public BufferedImage setup(String imageName) {
-
-        UtilityTool uTool = new UtilityTool();
-        BufferedImage image = null;
-
-        try {
-            image = ImageIO.read(getClass().getResourceAsStream("/player/" + imageName + ".png"));
-            image = uTool.scaleImage(image, gp.tileSize, gp.tileSize);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return image;
     }
 
     public void update() {
 
-        if(keyH.upPressed == true || keyH.downPressed == true || keyH.leftPressed == true || keyH.rightPressed == true) {
+        if(keyH.upPressed || keyH.downPressed || keyH.leftPressed || keyH.rightPressed) {
 
             if (keyH.upPressed) {
                 direction = "up";
@@ -94,6 +76,10 @@ public class Player extends Entity {
             // CHECK OBJECT COLLISION
             int objIndex = gp.cChecker.checkObject(this, true);
             pickUpObject(objIndex);
+
+            // CHECK NPC COLLISION
+            int npcIndex = gp.cChecker.checkEntity(this, gp.npc);
+            interactNPC(npcIndex);
 
             // IF TILE COLLISION IS FALSE, PLAYER CAN MOVE
             if(!collisionOn){
@@ -117,48 +103,59 @@ public class Player extends Entity {
         }
     }
 
+    private void interactNPC(int npcIndex) {
+        if(npcIndex != 9999) {
+
+            if(gp.keyH.enterPressed) {
+                gp.gameState = gp.dialogueState;
+                gp.npc[npcIndex].speak();
+
+            }
+        }
+        gp.keyH.enterPressed = false;
+    }
+
     public void pickUpObject(int index) {
         if(index != 9999) {
-
         }
     }
     public void draw(Graphics2D g2) {
 
         BufferedImage image = null;
 
-        switch(direction) {
-            case "up":
-                if(spriteNum == 1){
+        switch (direction) {
+            case "up" -> {
+                if (spriteNum == 1) {
                     image = up1;
                 }
-                if(spriteNum == 2){
+                if (spriteNum == 2) {
                     image = up2;
                 }
-                break;
-            case "down":
-                if(spriteNum == 1){
+            }
+            case "down" -> {
+                if (spriteNum == 1) {
                     image = down1;
                 }
-                if(spriteNum == 2){
+                if (spriteNum == 2) {
                     image = down2;
                 }
-                break;
-            case "left":
-                if(spriteNum == 1){
+            }
+            case "left" -> {
+                if (spriteNum == 1) {
                     image = left1;
                 }
-                if(spriteNum == 2){
+                if (spriteNum == 2) {
                     image = left2;
                 }
-                break;
-            case "right":
-                if(spriteNum == 1){
+            }
+            case "right" -> {
+                if (spriteNum == 1) {
                     image = right1;
                 }
-                if(spriteNum == 2){
+                if (spriteNum == 2) {
                     image = right2;
                 }
-                break;
+            }
         }
 
         g2.drawImage(image, screenX, screenY, null);

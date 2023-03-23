@@ -1,5 +1,6 @@
 package main;
 
+import entity.Entity;
 import entity.Player;
 import object.SuperObject;
 import tile.TileManager;
@@ -28,7 +29,7 @@ public class GamePanel extends JPanel implements Runnable{
 
     // SYSTEM INITIALIZATION
     TileManager tileM = new TileManager(this);
-    KeyHandler keyH = new KeyHandler(this);
+    public KeyHandler keyH = new KeyHandler(this);
     Sound se = new Sound();
     Sound music = new Sound();
     public CollisionChecker cChecker = new CollisionChecker(this);
@@ -39,11 +40,13 @@ public class GamePanel extends JPanel implements Runnable{
     // ENTITY AND OBJECT INITIALIZATION
     public Player player = new Player(this, keyH);
     public SuperObject obj[] = new SuperObject[10];
+    public Entity npc[] = new Entity[10];
 
     // GAME STATE
     public int gameState;
     public final int playState = 1;
     public final int pauseState = 2;
+    public final int dialogueState = 3;
 
 
     public GamePanel() {
@@ -55,14 +58,17 @@ public class GamePanel extends JPanel implements Runnable{
         this.setFocusable(true);
     }
 
+    // PREPARE ALL OBJECTS, NPCs, MUSIC, GAMESTATE ETC.
     public void setupGame() {
-        aSetter.setObject();
 
+        aSetter.setObject();
+        aSetter.setNPC();
         playMusic(0);
         stopMusic();
         gameState = playState;
     }
 
+    // START THE GAME THREAD ON WHICH THE GAME WILL RUN
     public void startGameThread() {
 
         gameThread = new Thread(this);
@@ -98,7 +104,7 @@ public class GamePanel extends JPanel implements Runnable{
 //            }
 //        }
 
-    // DELTA METHOD FOR THE GAME LOOP
+    // DELTA METHOD FOR THE GAME LOOP THAT CALCULATES HOW OFTEN WE SHOULD UPDATE THE GAME
     public void run() {
 
         double drawInterval = 1000__000__000/FPS; // 0.0166667 seconds refresh time
@@ -132,11 +138,18 @@ public class GamePanel extends JPanel implements Runnable{
         }
     }
 
+    // CHECK WHETHER GAME IS PAUSED OR NOT -> IF NO PAUSE, UPDATE GAME
     public void update() {
 
         if(gameState == playState){
 
             player.update();
+            for(int i = 0; i < npc.length; i++){
+                if(npc[i] != null){
+
+                    npc[i].update();
+                }
+            }
         }
         if(gameState == pauseState){
             // nothing
@@ -144,6 +157,7 @@ public class GamePanel extends JPanel implements Runnable{
 
     }
 
+    // THIS FUNCTION DOES THE ACTUAL DRAWING OF IMAGES
     public void paintComponent(Graphics g) {
 
         super.paintComponent(g);
@@ -156,6 +170,13 @@ public class GamePanel extends JPanel implements Runnable{
         for (int i = 0; i < obj.length; i++){
             if(obj[i] != null){
                 obj[i].draw(g2, this);
+            }
+        }
+
+        // DRAW NPC
+        for(int i = 0; i < npc.length; i++){
+            if(npc[i] != null) {
+                npc[i].draw(g2);
             }
         }
 
